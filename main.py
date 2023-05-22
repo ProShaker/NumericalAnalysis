@@ -7,20 +7,30 @@ import re
 import datetime
 from tqdm import tqdm
 import sys
+import def_func
 from openpyxl import Workbook
 import time
 
-# 1. 검색 키워드 입력
+
+
+# ----------------1. 검색 키워드 입력----------------
 xlsx = Workbook()
 keyWord = input('검색 키워드 입력 : ')
 time.sleep(1)
+
+#검색 종료할 페이지 입력
+page2 = int(input("\n크롤링할 종료 페이지를 입력해주세요. ex)1(숫자만입력):")) # ex)1 =1페이지,2=2페이지...
+print("\n크롤링할 종료 페이지: ",page2,"페이지")
+
+# naver url 생성
+url = def_func.makeUrl(keyWord,1,page2)
 
 # 시트 생성
 xlsx.create_sheet(keyWord)
 sheet = xlsx[keyWord]
 sheet.append(['날짜', '제목', 'URL'])
 
-# 2. 크롬드라이버로 원하는 url 접속
+# ----------------2. 크롬드라이버로 원하는 url 접속----------------
 print(2)
 url ='https://www.naver.com'
 driver = webdriver.Chrome()
