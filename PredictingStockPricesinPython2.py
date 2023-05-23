@@ -92,7 +92,7 @@ test_data = scaled_data[int(training_data_len) - 60: , :]
 
 # Create the datasets x_test and y_test
 x_test = []
-y_test = dataset[training_data_len:, :]
+y_test = dataset[int(training_data_len):, :]
 
 for i in range(60, len(test_data)):
     x_test.append(test_data[i-60:i, 0])
@@ -109,4 +109,40 @@ predictions = scaler.inverse_transform(predictions)
 
 # Get the root mean squared error (RMSE)
 rmse = np.sqrt(np.mean(predictions - y_test)**2)
-rmse
+
+# Plot the data
+train = data[:int(training_data_len)]
+valid = data[int(training_data_len):]
+valid['Predictions'] = predictions
+
+# Visualize the data
+plt.figure(figsize=(16, 8))
+plt.title('Model')
+plt.xlabel('Date', fontsize=18)
+plt.ylabel('Close Price USD ($)', fontsize=18)
+plt.plot(train['Close'])
+plt.plot(valid[['Close', 'Predictions']])
+plt.legend(['Train', 'Val', 'Predictions'], loc='lower right')
+plt.show()
+
+# Get the quote
+UNH_quote = pdr.get_data_yahoo(company, start_date, end_date)
+# Create a new dataframe
+new_df = UNH_quote.filter(['Close'])
+# Get the last 60 days closing price values and convert the dataframe to an array
+last_60_days = new_df[-60:].values
+# Scale the data to be values between 0 and 1
+last_60_days_scaled = scaler.transform(last_60_days)
+# Create an empty list
+X_test = []
+# Append the past 60days
+X_test.append(last_60_days_scaled)
+# Convert thr X_test data set to a numpy array
+X_test = np.array(X_test)
+# Reshape the data
+X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+# Get the predicted scaled price
+pred_price = model.predict(X_test)
+# undo the scaling
+pred_price = scaler.inverse_transform(pred_price)
+print(pred_price)
