@@ -55,16 +55,12 @@ plt.plot(df['Date'], y, label='Real')
 plt.plot(df['Date'], y_pred, label='Prediction')
 plt.xlabel('Date')
 plt.ylabel('Close')
+
+
 plt.title('Polynomial Regression')
 plt.legend()
 plt.xticks(rotation=45)
 plt.show()
 
-plt.subplot(2, 1, 2)
-# 산점도 그리기
-plt.scatter(y, y_pred)
-plt.xlabel('Actual Values')
-plt.ylabel('Predicted Values')
-plt.title('Scatter Plot of Polynomial Regression')
-plt.show()
+
 
