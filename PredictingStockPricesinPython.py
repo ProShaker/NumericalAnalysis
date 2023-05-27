@@ -1,5 +1,5 @@
 # https://youtu.be/PuZY9q-aKLw
-
+import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -11,6 +11,7 @@ import yfinance as yfin
 yfin.pdr_override()
 
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score
 from keras.layers import Dense, Dropout, LSTM
 from keras.models import Sequential
 
@@ -39,10 +40,10 @@ LSTM 모델을 구성하고, 컴파일합니다.
 ------------------------------------------------------------------'''
 
 # 회사 이름 설정 (예: AAPL은 애플 주식)
-company = 'UNH'
+company = 'PFE'
 
 start_date = dt.datetime(2000, 1, 1)
-end_date = dt.datetime(2020, 1, 1)
+end_date = dt.datetime(2023, 5, 25)
 
 # 주식 데이터 가져오기
 data = pdr.get_data_yahoo(company, start_date, end_date)
@@ -52,6 +53,7 @@ data = pdr.get_data_yahoo(company, start_date, end_date)
 # 'Close' 컬럼의 값을 2차원 배열로 변환하고, scaler를 사용하여 스케일링합니다.
 scaler = MinMaxScaler(feature_range=(0, 1))
 scaled_data = scaler.fit_transform(data['Close'].values.reshape(-1, 1))
+print(len(scaled_data))
 
 # 예측에 사용할 일 수 설정
 # 이는 모델이 과거 데이터를 기반으로 다음 종가를 예측할 때 참조할 일 수입니다.
@@ -67,6 +69,7 @@ y_train = []
 for x in range(prediction_days, len(scaled_data)):
     x_train.append(scaled_data[x-prediction_days:x, 0])
     y_train.append(scaled_data[x, 0])
+
 
 # x_train과 y_train을 numpy 배열로 변환합니다.
 # LSTM 모델에 입력하기 위해 x_train의 차원을 재구성합니다. (샘플 개수, 타임스텝, 특성) 형태로 변환합니다.
@@ -104,7 +107,7 @@ test_end = dt.datetime.today()
 test_data = pdr.get_data_yahoo(company, test_start, test_end)
 actual_prices = test_data['Close'].values
 
-'''total_dataset: 학습 데이터와 테스트 데이터를 연결하여 전체 데이터셋을 만듭니다.'''
+#total_dataset: 학습 데이터와 테스트 데이터를 연결하여 전체 데이터셋을 만듭니다.'''
 total_dataset = pd.concat((data['Close'], test_data['Close']))
 
 # model_inputs: 모델 입력 데이터를 생성하기 위해 테스트 데이터에서 예측에 사용할 기간에 해당하는 데이터를 가져옵니다.
@@ -114,12 +117,11 @@ model_inputs = model_inputs.reshape(-1,1)
 model_inputs = scaler.transform(model_inputs)
 
 # 데이터에 대한 예측 수행
-
+# 테스트 데이터의 예측에 사용할 입력 데이터인 x_test를 생성합니다.
 x_test = []
 
+# 현재 일수로부터 prediction_days 일 이전까지의 데이터를 x_test에 추가합니다.
 for x in range(prediction_days, len(model_inputs)):
-    # 테스트 데이터의 예측에 사용할 입력 데이터인 x_test를 생성합니다.
-    # 현재 일수로부터 prediction_days 일 이전까지의 데이터를 x_test에 추가합니다.
     x_test.append(model_inputs[x-prediction_days:x, 0])
 
 x_test = np.array(x_test)
@@ -140,7 +142,6 @@ plt.legend()
 plt.show()
 
 # 다음 날의 예측 수행
-
 real_data = [model_inputs[len(model_inputs) + 1 - prediction_days:len(model_inputs)]]
 real_data = np.array(real_data)
 real_data = np.reshape(real_data, (real_data.shape[0], real_data.shape[1], 1))
@@ -150,3 +151,5 @@ prediction = model.predict(real_data)
 # 스케일링된 예측 결과를 원래 값으로 되돌립니다.
 prediction = scaler.inverse_transform(prediction)
 print(f"Prediction: {prediction}")
+
+acc = accuracy_score(x_train, predicted_prices)
