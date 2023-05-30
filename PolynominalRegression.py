@@ -19,7 +19,7 @@ company = {
 }
 # CSV 파일 읽기
 
-data = pd.read_csv("D:\GITHUB/NumericalAnalysis\Top 10 Healthcare Companies in the United States/" + company[ticker.upper()] + ".csv", encoding='cp949')
+data = pd.read_csv("C:/Users\김형준\Documents\GitHub/NumericalAnalysis\Top 10 Healthcare Companies in the United States/" + company[ticker.upper()] + ".csv", encoding='cp949')
 
 
 # 필요한 열 선택
@@ -28,11 +28,11 @@ df = data[['Date', 'Close', 'Volume', 'PriceRange']]
 # 날짜를 datetime 형식으로 변환
 df['Date'] = pd.to_datetime(df['Date'])
 
-# 2000.01.01부터 이번주까지의 데이터 추출
-start_date = pd.to_datetime('2000-01-01')
-end_date = pd.to_datetime('2023-05-10')
-mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
-df = df.loc[mask]
+# # 2000.01.01부터 이번주까지의 데이터 추출
+# start_date = pd.to_datetime('2000-01-01')
+# end_date = pd.to_datetime('2023-05-10')
+# mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+# df = df.loc[mask]
 
 # 독립변수와 종속변수 설정
 X = df[['Volume', 'PriceRange']]
@@ -50,17 +50,15 @@ model.fit(X_poly, y)
 y_pred = model.predict(X_poly)
 
 # 그래프 그리기
-plt.subplot(2, 1, 1)
 plt.plot(df['Date'], y, label='Real')
 plt.plot(df['Date'], y_pred, label='Prediction')
 plt.xlabel('Date')
 plt.ylabel('Close')
-
-
 plt.title('Polynomial Regression')
 plt.legend()
 plt.xticks(rotation=45)
 plt.show()
+
 
 
 
