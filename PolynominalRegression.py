@@ -50,7 +50,6 @@ model.fit(X_poly, y)
 y_pred = model.predict(X_poly)
 
 # 그래프 그리기
-plt.subplot(2, 1, 1)
 plt.plot(df['Date'], y, label='Real')
 plt.plot(df['Date'], y_pred, label='Prediction')
 plt.xlabel('Date')
